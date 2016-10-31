@@ -1,0 +1,14 @@
+#!/usr/bin/python3
+# Copyright 2016 Joel Stanley <joel@jms.id.au>
+# Apache 2.0
+
+def num_to_gpio(num):
+    num = int(num) % 320
+
+    return (chr(num//8 + ord('a')), num % 8)
+
+if __name__ == '__main__':
+   import sys
+   gpio = num_to_gpio(sys.argv[1])
+   print("GPIO{}{}".format(gpio[0].upper(), gpio[1]))
+
