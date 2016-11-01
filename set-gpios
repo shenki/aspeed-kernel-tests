@@ -15,7 +15,7 @@ GPIO_SYSFS=/sys/class/gpio
 for i in $(seq ${GPIO_BASE} $((${GPIO_BASE} + ${GPIO_NR})))
 do
     echo ${i} > ${GPIO_SYSFS}/export
-    echo output > ${GPIO_SYSFS}/gpio${i}/direction
+    echo out > ${GPIO_SYSFS}/gpio${i}/direction
     echo 1 > ${GPIO_SYSFS}/gpio${i}/value
     [ 1 -eq $( cat ${GPIO_SYSFS}/gpio${i}/value ) ] || exit 1
     echo 0 > ${GPIO_SYSFS}/gpio${i}/value
