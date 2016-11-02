@@ -14,11 +14,23 @@ GPIO_SYSFS=/sys/class/gpio
 
 for i in $(seq ${GPIO_BASE} $((${GPIO_BASE} + ${GPIO_NR})))
 do
-    echo ${i} > ${GPIO_SYSFS}/export
+    if ! echo ${i} > ${GPIO_SYSFS}/export
+    then
+	echo Failed to export gpio${i}
+	continue
+    fi
+    RESULT=0
     echo out > ${GPIO_SYSFS}/gpio${i}/direction
     echo 1 > ${GPIO_SYSFS}/gpio${i}/value
-    [ 1 -eq $( cat ${GPIO_SYSFS}/gpio${i}/value ) ] || exit 1
+    [ 1 -eq $( cat ${GPIO_SYSFS}/gpio${i}/value ) ] || true
+    RESULT=$((${RESULT} + $?))
     echo 0 > ${GPIO_SYSFS}/gpio${i}/value
-    [ 0 -eq $( cat ${GPIO_SYSFS}/gpio${i}/value ) ] || exit 1
-    echo ${i} > ${GPIO_SYSFS}/unexport
+    [ 0 -eq $( cat ${GPIO_SYSFS}/gpio${i}/value ) ] || true
+    RESULT=$((${RESULT} + $?))
+    if [ 0 -eq ${RESULT} ]
+    then
+	echo ${i} > ${GPIO_SYSFS}/unexport
+    else
+	echo Failed to toggle gpio${i}
+    fi
 done
