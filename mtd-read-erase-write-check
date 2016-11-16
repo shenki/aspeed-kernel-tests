@@ -1,0 +1,62 @@
+#!/usr/bin/python3
+# Copyright 2016 Joel Stanley <joel@jms.id.au>
+# Apache 2.0
+
+import sys
+import fcntl
+import struct
+import uctypes
+from ioctl_opt import IOW
+
+TEST_SIZE = 64 * 1024
+
+# /proc/mtd pnor presence check
+mtd = False
+with open("/proc/mtd") as fh:
+    for line in fh.readlines():
+        if line.count('pnor'):
+            mtd = '/dev/' + line.split(':')[0]
+            break
+if mtd:
+    print('PASS: Found PNOR mtd device at', mtd)
+else:
+    print('FAIL: Could not find PNOR mtd device')
+    sys.exit(-1)
+
+
+# mtd device read-write check
+with open(mtd, 'rb+') as pnor:
+    orig_data = pnor.read(TEST_SIZE)
+    if len(orig_data) == TEST_SIZE:
+        print("PASS: Read successful")
+    else:
+        print("FAIL: Read did not work")
+        sys.exit(-1)
+    pnor.seek(0)
+
+    # TODO: Don't hardcode eraseblock size
+    erase = struct.pack('QQ', 0, TEST_SIZE)
+    req = IOW(ord('M'), 20, erase)
+
+    # ioctl throws an exception if it fails
+    fcntl.ioctl(pnor.fileno(), req, uctypes.addressof(erase))
+
+    erased = pnor.read(TEST_SIZE)
+    pnor.seek(0)
+
+    if all(v == 0xff for v in erased):
+        print("PASS: Erase successful")
+    else:
+        print("FAIL: Erase did not work")
+        sys.exit(-1)
+
+    pnor.write(orig_data)
+    pnor.seek(0)
+
+    data = pnor.read(TEST_SIZE)
+
+    if all(a == b for a, b in zip(orig_data, data)):
+        print("PASS: Write successful")
+    else:
+        print("FAIL: Write did not work\n")
+        sys.exit(-1)
