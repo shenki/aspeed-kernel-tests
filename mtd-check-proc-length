@@ -1,0 +1,16 @@
+#!/usr/bin/python3
+# Copyright 2016 Joel Stanley <joel@jms.id.au>
+# Apache 2.0
+
+import sys
+
+TEST_SIZE = 64 * 1024
+
+# /proc/mtd line length check
+with open("/proc/mtd") as fh:
+    for line in fh.readlines():
+        if len(line) > 255:
+            print('FAIL: /proc/mtd line is too long for pflash')
+            sys.exit(-1)
+
+print('PASS: /proc/mtd lines are safe')
