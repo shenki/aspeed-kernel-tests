@@ -4,8 +4,16 @@
 
 def num_to_gpio(num):
     num = int(num) % 320
+    v = num // 8
+    first = v // 26
+    second = v % 26
+    bank = chr(second + ord('a'))
+    if first > 0:
+       bank = chr(first - 1 + ord('a')) + chr(second + ord('a'))
 
-    return (chr(num//8 + ord('a')), num % 8)
+    index = num % 8
+
+    return (bank, index)
 
 if __name__ == '__main__':
    import sys

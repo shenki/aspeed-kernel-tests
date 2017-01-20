@@ -8,7 +8,8 @@ def num_to_gpio(num):
     return (chr(num//8 + ord('a')), num % 8)
 
 def gpio_to_num(letter, num):
-    return (ord(letter.lower()) - ord('a')) * 8 + int(num)
+    c = len(letter) - 1
+    return (c * 26 + ord(letter[-1].lower()) - ord('a')) * 8 + int(num)
 
 if __name__ == '__main__':
     import sys
