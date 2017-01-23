@@ -2,8 +2,8 @@
 # Copyright 2016 Joel Stanley <joel@jms.id.au>
 # Apache 2.0
 
-def num_to_gpio(num):
-    num = int(num) % 320
+def num_to_gpio(base, num):
+    num = int(num) - int(base)
     v = num // 8
     first = v // 26
     second = v % 26
@@ -17,6 +17,6 @@ def num_to_gpio(num):
 
 if __name__ == '__main__':
    import sys
-   gpio = num_to_gpio(sys.argv[1])
+   gpio = num_to_gpio(sys.argv[1], sys.argv[2])
    print("GPIO{}{}".format(gpio[0].upper(), gpio[1]))
 
